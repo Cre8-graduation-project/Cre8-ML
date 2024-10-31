@@ -18,9 +18,25 @@ def load_image_from_url(url):
     img_array = preprocess_input(img_array)
     return img_array
 
+
 # 이미지 특징 추출 함수
 def extract_features(url):
     img_array = load_image_from_url(url)
     features = model.predict(img_array)
     return features.flatten()
 
+
+def find_most_similar_image_with_vector(query_image_url, query_results, top_n=5):
+
+    query_features = extract_features(query_image_url)
+    feature_list = [doc['vector'] for doc in query_results]
+    similarities = cosine_similarity([query_features], feature_list).flatten()
+    sorted_indices = np.argsort(similarities)[::-1]  # 내림차순 정렬
+    top_indices = sorted_indices[:top_n]  # 상위 N개 인덱스 추출
+
+    # 상위 N개의 유사 이미지 ID와 유사도 점수 추출
+    similar_images = [
+        (query_results[i]['_id'], similarities[i]) for i in top_indices
+    ]
+
+    return similar_images
