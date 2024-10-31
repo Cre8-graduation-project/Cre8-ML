@@ -1,0 +1,9 @@
+flask
+mysql-connector-python
+python-dotenv
+tensorflow
+numpy
+opencv-python
+scikit-learn
+requests
+pillow
