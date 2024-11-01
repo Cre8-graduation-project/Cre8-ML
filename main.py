@@ -33,7 +33,7 @@ def save_today_vector():
     return Response(status=200)
 
 
-@app.route('/find_similar_image', methods=['GET'])
+@app.route('/find_similar_image', methods=['POST'])
 def find_similar_image():
     data = request.get_json()
     result = MongoVectorRepository.find_vector_with_id()
