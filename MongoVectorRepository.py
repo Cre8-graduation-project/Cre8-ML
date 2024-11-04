@@ -18,9 +18,9 @@ db = client[database_name]  # 사용할 데이터베이스
 collection = db["vector"]  # 사용할 컬렉션
 
 
-def insert_portfolio_with_vector(data):
+def insert_portfolio_image_with_vector(data):
     document = {"vector": data['vector'], "portfolio_id": data['portfolio_id'],
-                "access_url": data['access_url']}
+                "access_url": data['access_url'], "portfolio_image_id": data['portfolio_image_id']}
     result = collection.insert_one(document)
     print("Inserted document ID:", result.inserted_id)
 
@@ -31,6 +31,10 @@ def find_vector_with_id():
 
 def find_by_id(document_id):
     return collection.find_one({"_id": ObjectId(document_id)})
+
+
+def find_by_portfolio_image_id(portfolio_image_id):
+    return collection.find_one({"portfolio_image_id": portfolio_image_id})
 
 
 def find_by_access_url(access_url):

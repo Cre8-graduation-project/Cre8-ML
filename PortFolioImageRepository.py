@@ -14,14 +14,14 @@ def get_db_connection():
         charset="utf8"                                 # 문자 인코딩 설정
     )
 
-def get_portfolio():
+def get_portfolio_image():
     try:
         # 데이터베이스 커넥션 생성 및 커서 객체 생성
         db = get_db_connection()
         cursor = db.cursor()
 
         # SQL 쿼리 실행
-        cursor.execute("SELECT portfolio_id, access_url FROM portfolio_image")
+        cursor.execute("SELECT portfolio_image_id,access_url, portfolio_id FROM portfolio_image")
 
         # 쿼리 결과 가져오기
         results = cursor.fetchall()

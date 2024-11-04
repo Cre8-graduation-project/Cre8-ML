@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, jsonify, Response
 
 import MongoVectorRepository
-import PortFolioRepository
+import PortFolioImageRepository
 import VGGVector
 import requests
 
@@ -12,20 +12,24 @@ app = Flask(__name__)
 
 @app.route('/today/vector', methods=['POST'])
 def save_today_vector():
-    portfolio = PortFolioRepository.get_portfolio()
 
-    for portfolio_id, access_url in portfolio:
-        if not MongoVectorRepository.find_by_access_url(access_url):
+    portfolio_image = PortFolioImageRepository.get_portfolio_image()
+
+    for portfolio_image_id, access_url, portfolio_id in portfolio_image:
+        if not MongoVectorRepository.find_by_portfolio_image_id(portfolio_image_id):
             try:
-                vector = VGGVector.extract_features(access_url)
 
+                vector = VGGVector.extract_features(access_url)
                 document = {
-                    "portfolio_id": portfolio_id,
+                    "portfolio_image_id": portfolio_image_id,
                     "access_url": access_url,
+                    "portfolio_id": portfolio_id,
                     "vector": vector.tolist()  # numpy 배열을 리스트로 변환
                 }
 
-                MongoVectorRepository.insert_portfolio_with_vector(document)
+                print("hi2")
+
+                MongoVectorRepository.insert_portfolio_image_with_vector(document)
 
             except Exception as e:
                 print(f"Error processing URL {access_url}: {e}")
@@ -39,10 +43,6 @@ def find_similar_image():
     result = MongoVectorRepository.find_vector_with_id()
 
     result_list = list(result)
-
-    for doc in result_list:
-        print("역안")
-        print(doc)
 
     query_image_url = data['query_image_url']
 
@@ -58,6 +58,7 @@ def find_similar_image():
         # 결과를 리스트에 추가
         response_list.append({
             "most_similar_portfolio_id": query_result['portfolio_id'],
+            "most_similar_portfolio_image_id": query_result['portfolio_image_id'],
             'most_similar_access_url': query_result['access_url'],
             "similarity_score": json.dumps(str(round(similarity_score, 4)))
         })
