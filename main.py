@@ -12,7 +12,6 @@ app = Flask(__name__)
 
 @app.route('/today/vector', methods=['POST'])
 def save_today_vector():
-
     portfolio_image = PortFolioImageRepository.get_portfolio_image()
 
     for portfolio_image_id, access_url, portfolio_id in portfolio_image:
@@ -27,8 +26,6 @@ def save_today_vector():
                     "vector": vector.tolist()  # numpy 배열을 리스트로 변환
                 }
 
-                print("hi2")
-
                 MongoVectorRepository.insert_portfolio_image_with_vector(document)
 
             except Exception as e:
@@ -39,14 +36,15 @@ def save_today_vector():
 
 @app.route('/find_similar_image', methods=['POST'])
 def find_similar_image():
-    data = request.get_json()
-    result = MongoVectorRepository.find_vector_with_id()
+    if 'query_image_file' in request.files:
+        query_image = request.files['query_image_file']  # multipart file
+    elif 'query_image_url' in request.form:
+        query_image = request.form['query_image_url']  # URL (텍스트 데이터)
 
+    result = MongoVectorRepository.find_vector_with_id()
     result_list = list(result)
 
-    query_image_url = data['query_image_url']
-
-    similar_images = VGGVector.find_most_similar_image_with_vector(query_image_url,result_list)
+    similar_images = VGGVector.find_most_similar_image_with_vector(query_image, result_list)
 
     # 결과를 담을 리스트 초기화
     response_list = []

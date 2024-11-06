@@ -19,16 +19,29 @@ def load_image_from_url(url):
     return img_array
 
 
+def load_image_from_data(data):
+    img = Image.open(data)
+    img = img.resize((224, 224))
+    img_array = img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
+    return img_array
+
+
 # 이미지 특징 추출 함수
-def extract_features(url):
-    img_array = load_image_from_url(url)
+def extract_features(query_image):
+
+    if isinstance(query_image, str):  # 링크일 경우
+        img_array = load_image_from_url(query_image)
+    else:  # multipart data일 경우
+        img_array = load_image_from_data(query_image)
+
     features = model.predict(img_array)
     return features.flatten()
 
 
-def find_most_similar_image_with_vector(query_image_url, query_results, top_n=5):
-
-    query_features = extract_features(query_image_url)
+def find_most_similar_image_with_vector(query_image, query_results, top_n=5):
+    query_features = extract_features(query_image)
     feature_list = [doc['vector'] for doc in query_results]
     similarities = cosine_similarity([query_features], feature_list).flatten()
     sorted_indices = np.argsort(similarities)[::-1]  # 내림차순 정렬
