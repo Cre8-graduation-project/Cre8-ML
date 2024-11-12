@@ -20,7 +20,7 @@ def load_image_from_url(url):
 
 
 def load_image_from_data(data):
-    img = Image.open(data)
+    img = Image.open(data).convert('RGB')
     img = img.resize((224, 224))
     img_array = img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
