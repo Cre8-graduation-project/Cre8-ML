@@ -34,6 +34,34 @@ def save_today_vector():
     return Response(status=200)
 
 
+@app.route('/portfolio/vector', methods=['POST'])
+def save_vector():
+
+    portfolio_image_id = request.args.get('portfolioImageId')
+
+    if portfolio_image_id:
+
+        portfolio_image = PortFolioImageRepository.get_portfolio_image_one(portfolio_image_id)
+        try:
+
+            vector = VGGVector.extract_features(portfolio_image[1])
+            document = {
+                "portfolio_image_id": portfolio_image[0],
+                "access_url": portfolio_image[1],
+                "portfolio_id": portfolio_image[2],
+                "vector": vector.tolist()
+            }
+
+            VectorElasticSearch.insert_portfolio_image_with_vector_elastic(document)
+        except Exception as e:
+            print("저장시 오류 발생 URL {access_url}: {e}")
+
+        return jsonify({"message": "Received", "portfolioImageId": portfolio_image_id}), 200
+    else:
+        # 파라미터가 없을 경우 에러 응답
+        return jsonify({"error": "portfolioImageId is required"}), 400
+
+
 @app.route('/find_similar_image', methods=['POST'])
 def find_similar_image():
     if 'query_image_file' in request.files:
