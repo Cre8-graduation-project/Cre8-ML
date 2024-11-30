@@ -20,7 +20,10 @@ es = OpenSearch(
     use_ssl=True,
     verify_certs=True,
     connection_class=RequestsHttpConnection,
-    pool_maxsize=20
+    pool_maxsize=20,
+    timeout=30,
+    max_retries=3,
+    retry_on_timeout=True
 )
 
 index_name = "portfolio"
